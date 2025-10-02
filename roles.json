@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1339150539128311809",
+    "name": "Resources Access",
+    "level": 10,
+    "canAccessResources": true,
+    "isAdmin": false
+  },
+  {
+    "id": "1130552785860038758",
+    "name": "Member",
+    "level": 1,
+    "canAccessResources": false
+  },
+  {
+    "id": "1004002691648851978",
+    "name": "OtherRole",
+    "level": 2,
+    "canAccessResources": false
+  }
+]
+[
+  {
+    "id": "1339150539128311809",
+    "name": "Resources Access",
+    "level": 10,
+    "canAccessResources": true,
+    "isAdmin": false
+  },
+  {
+    "id": "1130552785860038758",
+    "name": "Member",
+    "level": 1,
+    "canAccessResources": false
+  },
+  {
+    "id": "1004002691648851978",
+    "name": "OtherRole",
+    "level": 2,
+    "canAccessResources": false
+  }
+]

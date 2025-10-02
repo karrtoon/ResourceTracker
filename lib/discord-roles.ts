@@ -31,13 +31,15 @@ function getRoleHierarchy(): RoleConfig[] {
   if (cachedRoles !== null) {
     return cachedRoles;
   }
-
-  const roleConfig = process.env.DISCORD_ROLES_CONFIG;
+  // For middleware (Edge runtime) we cannot use Node APIs like fs or process.cwd.
+  // Rely on the DISCORD_ROLES_CONFIG environment variable which is available in both
+  // Node and Edge runtimes. Keep caching behavior the same.
+  const roleConfig = process.env.DISCORD_ROLES_CONFIG
 
   // If the environment variable is not set, log a warning and return an empty array for now.
   // We do NOT cache this result, allowing for a retry on the next call.
   if (!roleConfig) {
-    console.warn('No DISCORD_ROLES_CONFIG found. Using empty configuration for this call.');
+    console.warn('No DISCORD_ROLES_CONFIG found. Using empty configuration for this call.')
     return [];
   }
 

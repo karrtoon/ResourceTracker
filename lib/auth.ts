@@ -22,6 +22,10 @@ const scopes = ['identify', 'guilds.members.read'].join(' ')
 // Allow enabling verbose NextAuth debug logging in production via an env var
 const isDebug = process.env.NEXTAUTH_DEBUG === 'true' || process.env.NODE_ENV === 'development'
 
+// Optional cookie domain to restrict NextAuth cookies (useful to avoid preview <-> prod collisions)
+// Example: COOKIE_DOMAIN=resource-tracker-livid.vercel.app
+const cookieDomain = process.env.COOKIE_DOMAIN || undefined
+
 if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
   console.warn('[auth] DISCORD_CLIENT_ID or DISCORD_CLIENT_SECRET is missing. OAuth will fail if not set.')
 }
@@ -69,6 +73,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        domain: cookieDomain,
       },
     },
     callbackUrl: {
@@ -77,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        domain: cookieDomain,
       },
     },
     csrfToken: {
@@ -86,6 +92,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        domain: cookieDomain,
       },
     },
   },

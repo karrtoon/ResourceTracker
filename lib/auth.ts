@@ -207,6 +207,26 @@ export const authOptions: NextAuthOptions = {
           hasUserManagementAccess: hasUserManagementAccess(userRoles),
           hasDataExportAccess: hasDataExportAccess(userRoles)
         }
+        // Emit a compact, non-sensitive debug summary so logs show why access may be denied
+        if (isDebug) {
+          try {
+            console.debug('[auth][jwt] token summary', JSON.stringify({
+              sub: token.sub,
+              rolesCount: userRoles.length,
+              isInGuild: Boolean(token.isInGuild),
+              rolesFetched: Boolean(token.rolesFetched),
+              permissions: token.permissions
+            }))
+          } catch (e) {
+            console.debug('[auth][jwt] token summary', {
+              sub: token.sub,
+              rolesCount: userRoles.length,
+              isInGuild: Boolean(token.isInGuild),
+              rolesFetched: Boolean(token.rolesFetched),
+              permissions: token.permissions
+            })
+          }
+        }
       }
 
       return token
@@ -226,6 +246,24 @@ export const authOptions: NextAuthOptions = {
           hasReportAccess: false,
           hasUserManagementAccess: false,
           hasDataExportAccess: false
+        }
+      }
+
+      if (isDebug) {
+        try {
+          console.debug('[auth][session] session summary', JSON.stringify({
+            id: session.user.id,
+            rolesCount: (session.user.roles || []).length,
+            isInGuild: session.user.isInGuild,
+            permissions: session.user.permissions
+          }))
+        } catch (e) {
+          console.debug('[auth][session] session summary', {
+            id: session.user.id,
+            rolesCount: (session.user.roles || []).length,
+            isInGuild: session.user.isInGuild,
+            permissions: session.user.permissions
+          })
         }
       }
 

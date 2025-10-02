@@ -19,6 +19,13 @@ interface UserPermissions {
 // Discord API scopes needed for role checking
 const scopes = ['identify', 'guilds.members.read'].join(' ')
 
+// Allow enabling verbose NextAuth debug logging in production via an env var
+const isDebug = process.env.NEXTAUTH_DEBUG === 'true' || process.env.NODE_ENV === 'development'
+
+if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
+  console.warn('[auth] DISCORD_CLIENT_ID or DISCORD_CLIENT_SECRET is missing. OAuth will fail if not set.')
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     DiscordProvider({
@@ -82,8 +89,25 @@ export const authOptions: NextAuthOptions = {
       },
     },
   },
-  debug: process.env.NODE_ENV === 'development',
+  // Enable debug when requested or in development
+  debug: isDebug,
   secret: process.env.NEXTAUTH_SECRET,
+  // Provide a logger so NextAuth will write errors/warnings to server logs in production
+  logger: {
+    error(code, metadata) {
+      try {
+        console.error('[next-auth][logger][error]', code, JSON.stringify(metadata))
+      } catch (e) {
+        console.error('[next-auth][logger][error]', code, metadata)
+      }
+    },
+    warn(code) {
+      console.warn('[next-auth][logger][warn]', code)
+    },
+    debug(code) {
+      if (isDebug) console.debug('[next-auth][logger][debug]', code)
+    }
+  },
   callbacks: {
     async jwt({ token, account, trigger, user }) {
       // Store access token and global_name from initial login
@@ -208,6 +232,7 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+  // No custom events; use the provided logger above to capture errors/warnings
   // Remove custom sign-in page for now to avoid conflicts
   // pages: {
   //   signIn: '/auth/signin',

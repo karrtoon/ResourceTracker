@@ -41,13 +41,32 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
 
-  if (!session || !hasResourceAdminAccess(session.user.roles)) {
+  // Support two authorization modes for creating resources:
+  // 1) A signed-in user with admin permissions
+  // 2) A bot/service using the BOT_API_KEY sent as a Bearer token in the Authorization header
+  const authHeader = request.headers.get('authorization') || request.headers.get('Authorization')
+  const botApiKey = process.env.BOT_API_KEY
+
+  let userId: string | null = null
+  let usedBotAuth = false
+
+  if (session && hasResourceAdminAccess(session.user.roles)) {
+    userId = getUserIdentifier(session)
+  } else if (botApiKey && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice('Bearer '.length)
+    if (token === botApiKey) {
+      // Authorised as bot
+      usedBotAuth = true
+      userId = 'bot'
+    }
+  }
+
+  if (!userId) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
   }
 
   try {
     const { name, category, description, imageUrl, quantity, quantityHagga, quantityDeepDesert, targetQuantity, multiplier } = await request.json()
-    const userId = getUserIdentifier(session)
 
     if (!name || !category) {
       return NextResponse.json({ error: 'Name and category are required' }, { status: 400 })
